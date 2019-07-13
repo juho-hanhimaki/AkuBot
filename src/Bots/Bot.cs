@@ -17,41 +17,36 @@ namespace AkuBot.Bots
     public class Bot : ActivityHandler
     {
         private readonly string[] helloValues = new string[] { "hei", "moi", "hola", "moro", "tere", "terve" };
-        private Hessu GetHessu(string name, string json)
-        {
-            return new Hessu(name, json);
-        }
 
-        protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        protected override Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             var activity = turnContext.Activity;
             var lower = activity.RemoveRecipientMention().ToLower();
 
             if (lower.Contains("stat"))
             {
-                await GetStats().ConfigureAwait(false);
+                return GetStats();
             }
             else if (lower.Contains("tanaa") || lower.Contains("tänää") || lower.Contains("tänää"))
             {
-                await GetStatsTanaan().ConfigureAwait(false);
+                return GetStatsTanaan();
             }
             else if (lower.ContainsAny(helloValues))
             {
-                await KikkiHiiri().ConfigureAwait(false);
+                return KikkiHiiri();
             }
             else if (!activity.Text.Contains("hups"))
             {
-                await ShowOptions().ConfigureAwait(false);
+                return ShowOptions();
             }
             else
             {
-                await GoobyPls().ConfigureAwait(false);
+                return GoobyPls();
             }
 
             async Task ShowOptions()
             {
                 var message = MessageFactory.Text("Hessu mitä vittua?");
-                //message.RemoveRecipientMention();
                 message.TextFormat = TextFormatTypes.Plain;
                 message.SuggestedActions = new SuggestedActions()
                 {
@@ -68,13 +63,13 @@ namespace AkuBot.Bots
             {
                 var startDate = ((DateTimeOffset)DateTime.UtcNow.AddHours(-12)).ToUnixTimeSeconds();
 
-                var j = await StatsApiClient.GetAsync($"player/76561198142674318/stats?startDate={startDate}").ConfigureAwait(false);
-                var t = await StatsApiClient.GetAsync($"player/76561197963691340/stats?startDate={startDate}").ConfigureAwait(false);
-                var m = await StatsApiClient.GetAsync($"player/76561197963257704/stats?startDate={startDate}").ConfigureAwait(false);
-                var a = await StatsApiClient.GetAsync($"player/76561197960369776/stats?startDate={startDate}").ConfigureAwait(false);
-                var e = await StatsApiClient.GetAsync($"player/76561197965878215/stats?startDate={startDate}").ConfigureAwait(false);
+                var j = await StatsApiClient.GetAsync($"player/76561198142674318/stats?startDate={startDate}");
+                var t = await StatsApiClient.GetAsync($"player/76561197963691340/stats?startDate={startDate}");
+                var m = await StatsApiClient.GetAsync($"player/76561197963257704/stats?startDate={startDate}");
+                var a = await StatsApiClient.GetAsync($"player/76561197960369776/stats?startDate={startDate}");
+                var e = await StatsApiClient.GetAsync($"player/76561197965878215/stats?startDate={startDate}");
                 var hessut = new Hessu[] {
-                GetHessu("Juho", j), GetHessu("Topias", t), GetHessu("Mikko", m), GetHessu("Lompsa", a), GetHessu("Epeli", e) };
+                new Hessu("Juho", j), new Hessu("Topias", t), new Hessu("Mikko", m), new Hessu("Lompsa", a), new Hessu("Epeli", e) };
 
                 const string header = "\t\n\t\n\t\nTänään    HLTV    RWS    KD    ADR\n";
 
@@ -89,21 +84,21 @@ namespace AkuBot.Bots
             {
                 var startDate = ((DateTimeOffset)DateTime.UtcNow.AddDays(-28)).ToUnixTimeSeconds();
 
-                var j = await StatsApiClient.GetAsync("player/76561198142674318/stats").ConfigureAwait(false);
-                var t = await StatsApiClient.GetAsync("player/76561197963691340/stats").ConfigureAwait(false);
-                var m = await StatsApiClient.GetAsync("player/76561197963257704/stats").ConfigureAwait(false);
-                var a = await StatsApiClient.GetAsync("player/76561197960369776/stats").ConfigureAwait(false);
-                var e = await StatsApiClient.GetAsync("player/76561197965878215/stats").ConfigureAwait(false);
+                var j = await StatsApiClient.GetAsync("player/76561198142674318/stats");
+                var t = await StatsApiClient.GetAsync("player/76561197963691340/stats");
+                var m = await StatsApiClient.GetAsync("player/76561197963257704/stats");
+                var a = await StatsApiClient.GetAsync("player/76561197960369776/stats");
+                var e = await StatsApiClient.GetAsync("player/76561197965878215/stats");
                 var hessut = new Hessu[] {
-                GetHessu("Juho", j), GetHessu("Topias", t), GetHessu("Mikko", m), GetHessu("Lompsa", a), GetHessu("Epeli", e) };
+                new Hessu("Juho", j), new Hessu("Topias", t), new Hessu("Mikko", m), new Hessu("Lompsa", a), new Hessu("Epeli", e) };
 
-                var j14 = await StatsApiClient.GetAsync($"player/76561198142674318/stats?startDate={startDate}").ConfigureAwait(false);
-                var t14 = await StatsApiClient.GetAsync($"player/76561197963691340/stats?startDate={startDate}").ConfigureAwait(false);
-                var m14 = await StatsApiClient.GetAsync($"player/76561197963257704/stats?startDate={startDate}").ConfigureAwait(false);
-                var a14 = await StatsApiClient.GetAsync($"player/76561197960369776/stats?startDate={startDate}").ConfigureAwait(false);
-                var e14 = await StatsApiClient.GetAsync($"player/76561197965878215/stats?startDate={startDate}").ConfigureAwait(false);
+                var j14 = await StatsApiClient.GetAsync($"player/76561198142674318/stats?startDate={startDate}");
+                var t14 = await StatsApiClient.GetAsync($"player/76561197963691340/stats?startDate={startDate}");
+                var m14 = await StatsApiClient.GetAsync($"player/76561197963257704/stats?startDate={startDate}");
+                var a14 = await StatsApiClient.GetAsync($"player/76561197960369776/stats?startDate={startDate}");
+                var e14 = await StatsApiClient.GetAsync($"player/76561197965878215/stats?startDate={startDate}");
                 var hessut14 = new Hessu[] {
-                GetHessu("Juho", j14), GetHessu("Topias", t14), GetHessu("Mikko", m14), GetHessu("Lompsa", a14), GetHessu("Epeli", e14) };
+                new Hessu("Juho", j14), new Hessu("Topias", t14), new Hessu("Mikko", m14), new Hessu("Lompsa", a14), new Hessu("Epeli", e14) };
 
 
                 const string header = "\t\n\t\n\t\n4 weeks   HLTV    RWS    KD    ADR\n";
@@ -116,16 +111,16 @@ namespace AkuBot.Bots
             }
 
 
-            async Task KikkiHiiri()
+            Task KikkiHiiri()
             {
                 var message = MessageFactory.Attachment(new Attachment("image/jpeg", $"https://steamuserimages-a.akamaihd.net/ugc/434950296045443533/FFBFC6C4B48577AAC1C3786BF3B25E32A4C94DD7/", "kikki-hiiri.jpeg"));
-                await turnContext.SendActivityAsync(message, cancellationToken);
+                return turnContext.SendActivityAsync(message, cancellationToken);
             }
 
-            async Task GoobyPls()
+            Task GoobyPls()
             {
                 var message = MessageFactory.Attachment(new Attachment("image/jpeg", $"https://tr.rbxcdn.com/13511aceec125e9863d43a4e94ceb3f8/420/420/Decal/Png", "gooby-pls.jpg"));
-                await turnContext.SendActivityAsync(message, cancellationToken);
+                return turnContext.SendActivityAsync(message, cancellationToken);
             }
         }
 
