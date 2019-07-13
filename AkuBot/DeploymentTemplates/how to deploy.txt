@@ -1,0 +1,14 @@
+﻿### CREATE AZURE RESOURCES
+cd "C:\Users\Juho\source\repos\AkuBot\AkuBot\DeploymentTemplates""
+az login
+az account set --subscription "12757dab-928d-4897-92e6-db9c7021b76c"
+$appSecret = Read-Host -Prompt 'Input the app secret'
+az group deployment create --name "akubot" --resource-group "akubot" --template-file "template-with-preexisting-rg.json" --parameters appId="590752f9-a267-4352-8164-9cc6d4cbb507" appSecret="$appSecret" botId="akubot" newWebAppName="akubot" newAppServicePlanName="akubot" appServicePlanLocation="northeurope"
+
+### UPLOAD CODE
+cd "C:\Users\Juho\source\repos\AkuBot\AkuBot"
+az bot prepare-deploy --lang Csharp --code-dir "." --proj-file-path "AkuBot.csproj"
+rm .\publish\code.zip
+mkdir publish
+Compress-Archive -Path ".\" -DestinationPath "publish\code"
+az webapp deployment source config-zip --resource-group "akubot" --name "akubot" --src "publish\code.zip"

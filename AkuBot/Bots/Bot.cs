@@ -14,21 +14,24 @@ using Microsoft.Bot.Schema;
 
 namespace AkuBot.Bots
 {
-    public class EchoBot : ActivityHandler
+    public class Bot : ActivityHandler
     {
-        readonly string[] helloValues = new string[] { "hei", "moi", "hola", "moro", "tere", "terve" };
-        private Hessu GetHessu(string name, string json) => new Hessu(name, json);
+        private readonly string[] helloValues = new string[] { "hei", "moi", "hola", "moro", "tere", "terve" };
+        private Hessu GetHessu(string name, string json)
+        {
+            return new Hessu(name, json);
+        }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             var activity = turnContext.Activity;
-            var lower = activity.Text.ToLower();
+            var lower = activity.RemoveRecipientMention().ToLower();
 
             if (lower.Contains("stat"))
             {
                 await GetStats().ConfigureAwait(false);
             }
-            else if (lower.Contains("tanaan") || lower.Contains("tänään") || lower.Contains("t�n��n"))
+            else if (lower.Contains("tanaa") || lower.Contains("tänää") || lower.Contains("tänää"))
             {
                 await GetStatsTanaan().ConfigureAwait(false);
             }
@@ -45,16 +48,15 @@ namespace AkuBot.Bots
                 await GoobyPls().ConfigureAwait(false);
             }
 
-
             async Task ShowOptions()
             {
                 var message = MessageFactory.Text("Hessu mitä vittua?");
-                message.RemoveRecipientMention();
+                //message.RemoveRecipientMention();
                 message.TextFormat = TextFormatTypes.Plain;
                 message.SuggestedActions = new SuggestedActions()
                 {
                     Actions = new List<CardAction>() {
-                    new CardAction(){ Title = "N�yt� statsit", Type=ActionTypes.ImBack, Value="stats" },
+                    new CardAction(){ Title = "Näytä statsit", Type=ActionTypes.ImBack, Value="stats" },
                     new CardAction(){ Title = "Hups", Type=ActionTypes.ImBack, Value="hups" }
                     }
                 };
@@ -74,10 +76,10 @@ namespace AkuBot.Bots
                 var hessut = new Hessu[] {
                 GetHessu("Juho", j), GetHessu("Topias", t), GetHessu("Mikko", m), GetHessu("Lompsa", a), GetHessu("Epeli", e) };
 
-                const string header = "\t\n\t\n\t\nTänään   HLTV    RWS    KD    ADR\n";
+                const string header = "\t\n\t\n\t\nTänään    HLTV    RWS    KD    ADR\n";
 
                 var textToDraw = $"{header}{string.Join(Environment.NewLine, hessut.OrderByDescending(f => f.Rating).Select(f => f.ToString()))}\n";
-                var bytes = DrawText(textToDraw);
+                var bytes = DrawText(textToDraw, true);
 
                 var message = MessageFactory.Attachment(new Attachment("image/png", $"data:image/png;base64,{Convert.ToBase64String(bytes)}", "stats.png"));
                 await turnContext.SendActivityAsync(message, cancellationToken);
@@ -104,7 +106,7 @@ namespace AkuBot.Bots
                 GetHessu("Juho", j14), GetHessu("Topias", t14), GetHessu("Mikko", m14), GetHessu("Lompsa", a14), GetHessu("Epeli", e14) };
 
 
-                const string header = "\t\n\t\n\t\n4 weeks    HLTV    RWS    KD    ADR\n";
+                const string header = "\t\n\t\n\t\n4 weeks   HLTV    RWS    KD    ADR\n";
 
                 var textToDraw = $"{header}{string.Join(Environment.NewLine, hessut14.OrderByDescending(f => f.Rating).Select(f => f.ToString()))}\nAll time\n{string.Join(Environment.NewLine, hessut.OrderByDescending(f => f.Rating).Select(f => f.ToString()))}";
                 var bytes = DrawText(textToDraw);
@@ -122,12 +124,12 @@ namespace AkuBot.Bots
 
             async Task GoobyPls()
             {
-                var message = MessageFactory.Attachment(new Attachment("image/jpeg", $"https://memegenerator.net/img/instances/81078807.jpg", "gooby-pls.jpg"));
+                var message = MessageFactory.Attachment(new Attachment("image/jpeg", $"https://tr.rbxcdn.com/13511aceec125e9863d43a4e94ceb3f8/420/420/Decal/Png", "gooby-pls.jpg"));
                 await turnContext.SendActivityAsync(message, cancellationToken);
             }
         }
 
-        public byte[] DrawText(string text)
+        public byte[] DrawText(string text, bool x2 = false)
         {
             using (var image = new MagickImage(MagickColors.White, 380, 400))
             {
@@ -143,8 +145,14 @@ namespace AkuBot.Bots
                   .Draw(image);
 
                 image.Trim();
-                var max = Math.Max(image.Width, image.Height) + 20;
-                image.Extent(new MagickGeometry(-10, -10, max, max), MagickColors.White);
+                if (x2)
+                {
+                    image.Extent(new MagickGeometry(-10, -10, image.Width + 20, image.Height * 2 + 20), MagickColors.White);
+                }
+                else
+                {
+                    image.Extent(new MagickGeometry(-10, -10, image.Width + 20, image.Height + 20), MagickColors.White);
+                }
 
                 return image.ToByteArray(MagickFormat.Png);
             }

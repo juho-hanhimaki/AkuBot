@@ -6,12 +6,14 @@ namespace AkuBot
 {
     public class StatsApiClient
     {
-        private static HttpClient client;
+        private static readonly HttpClient client;
 
         static StatsApiClient()
         {
-            client = new HttpClient();
-            client.BaseAddress = new Uri("http://cs.ananassi.com/api/");
+            client = new HttpClient
+            {
+                BaseAddress = new Uri("http://cs.ananassi.com/api/")
+            };
         }
 
         public static async Task<string> GetAsync(string uri)
